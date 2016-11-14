@@ -384,3 +384,252 @@ code
 	  
 	  layer.close(index);
 	});   
+
+##layer.confirm(content, options, yes, cancel) - 询问框
+类似系统confirm，但却远胜confirm，另外它不是和系统的confirm一样阻塞你需要把交互的语句放在回调体中。同样的，它的参数也是自动补齐的。
+
+	//eg1
+	layer.confirm('is not?', {icon: 3, title:'提示'}, function(index){
+	  //do something
+	  
+	  layer.close(index);
+	});
+	//eg2
+	layer.confirm('is not?', function(index){
+	  //do something
+	  
+	  layer.close(index);
+	});       
+        
+
+##layer.msg(content, options, end) - 提示框
+我在源码中有了相对较大的篇幅来定制了这个msg，目的是想将其打造成露脸率最高的提示框。而事实上我的确也在大量地使用它。因为它简单，而且足够得自觉，它不仅占据很少的面积，而且默认还会3秒后自动消失所有这一切都决定了我对msg的爱。因此我赋予了她许多可能在外形方面，它坚持简陋的变化，在作用方面，他坚持零用户操作。而且它的参数也是机会自动补齐的。
+
+	//eg1
+	layer.msg('只想弱弱提示');
+	//eg2
+	layer.msg('有表情地提示', {icon: 6}); 
+	//eg3
+	layer.msg('关闭后想做些什么', function(){
+	  //do something
+	}); 
+	//eg
+	layer.msg('同上', {
+	  icon: 1,
+	  time: 2000 //2秒关闭（如果不配置，默认是3秒）
+	}, function(){
+	  //do something
+	});   
+      
+##layer.load(icon, options) - 加载层
+type:3的深度定制。load并不需要你传太多的参数，但如果你不喜欢默认的加载风格，你还有选择空间。icon支持传入0-2如果是0，无需传。另外特别注意一点：load默认是不会自动关闭的，因为你一般会在ajax回调体中关闭它。
+
+//eg1
+var index = layer.load();
+//eg2
+var index = layer.load(1); //换了种风格
+//eg3
+var index = layer.load(2, {time: 10*1000}); //又换了种风格，并且设定最长等待10秒 
+//关闭
+layer.close(index);     
+        
+
+##layer.tips(content, follow, options) - tips层
+type:4的深度定制。也是我本人比较喜欢的一个层类型，因为它拥有和msg一样的低调和自觉，而且会智能定位，即灵活地判断它应该出现在哪边。默认是在元素右边弹出
+
+	//eg1
+	layer.tips('只想提示地精准些', '#id');
+	//eg 2
+	$('#id').on('click', function(){
+	  var that = this;
+	  layer.tips('只想提示地精准些', that); //在元素的事件回调体中，follow直接赋予this即可
+	});
+	//eg 3
+	layer.tips('在上面', '#id', {
+	  tips: 1
+	});
+
+
+##layer.close(index) - 关闭特定层
+
+关于它似乎没有太多介绍的必要，唯一让你疑惑的，可能就是这个index了吧。事实上它非常容易得到。
+
+	//当你想关闭当前页的某个层时
+	var index = layer.open();
+	var index = layer.alert();
+	var index = layer.load();
+	var index = layer.tips();
+	//正如你看到的，每一种弹层调用方式，都会返回一个index
+	layer.close(index); //此时你只需要把获得的index，轻轻地赋予layer.close即可
+	//当你在iframe页面关闭自身时
+	var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+	parent.layer.close(index); //再执行关闭   
+
+##layer.closeAll(type) - 关闭所有层
+如果你很懒，你不想去获取index你只想关闭。那么closeAll真的可以帮上你。如果你不指向层类型的话，它会销毁掉当前页所有的layer层。当然，如果你只想关闭某个类型的层，那么你可以
+
+	layer.closeAll(); //疯狂模式，关闭所有层
+	layer.closeAll('dialog'); //关闭信息框
+	layer.closeAll('page'); //关闭所有页面层
+	layer.closeAll('iframe'); //关闭所有的iframe层
+	layer.closeAll('loading'); //关闭加载层
+	layer.closeAll('tips'); //关闭所有的tips层  
+
+
+##layer.style(index, cssStyle) - 重新定义层的样式
+该方法对loading层和tips层无效。参数index为层的索引，cssStyle允许你传入任意的css属性
+
+	//重新给指定层设定width、top等
+	layer.style(index, {
+	  width: '1000px',
+	  top: '10px'
+	});       
+        
+
+##layer.title(title, index) - 改变层的标题
+使用方式：layer.title('标题变了', index)
+
+##layer.getChildFrame(selector, index) - 获取iframe页的DOM
+当你试图在当前页获取iframe页的DOM元素时，你可以用此方法。selector即iframe页的选择器
+
+
+	layer.open({
+	  type: 2,
+	  content: 'test/iframe.html',
+	  success: function(layero, index){
+	    var body = layer.getChildFrame('body', index);
+	    var iframeWin = window[layero.find('iframe')[0]['name']]; //得到iframe页的窗口对象，执行iframe页的方法：iframeWin.method();
+	    console.log(body.html()) //得到iframe页的body内容
+	    body.find('input').val('Hi，我是从父页来的')
+	  }
+	});       
+      
+
+##layer.getFrameIndex(windowName) - 获取特定iframe层的索引
+此方法一般用于在iframe页关闭自身时用到。
+
+	//假设这是iframe页
+	var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+	parent.layer.close(index); //再执行关闭        
+        
+##layer.iframeAuto(index) - 指定iframe层自适应
+调用该方法时，iframe层的高度会重新进行适应
+
+##layer.iframeSrc(index, url) - //重置特定iframe url
+似乎不怎么常用的样子。使用方式：layer.iframeSrc(index, 'http://sentsin.com')
+
+##layer.setTop(layero) -置顶当前窗口
+非常强大的一个方法，虽然一般很少用。但是当你的页面有很多很多layer窗口，你需要像Window窗体那样，点击某个窗口，该窗体就置顶在上面，那么setTop可以来轻松实现。它采用巧妙的逻辑，以使这种置顶的性能达到最优
+
+
+	//通过这种方式弹出的层，每当它被选择，就会置顶。
+	layer.open({
+	  type: 2,
+	  shade: false,
+	  area: '500px',
+	  maxmin: true,
+	  content: 'http://www.layui.com',
+	  zIndex: layer.zIndex, //重点1
+	  success: function(layero){
+	    layer.setTop(layero); //重点2
+	  }
+	});     
+   
+
+
+##layer.full()、layer.min()、layer.restore() - 手工执行最大小化
+（这三个酱油又一次被并列 ==。）一般用于在自定义元素上触发最大化、最小化和全屏。
+
+##layer.prompt(options, yes) - 输入层
+prompt的参数也是向前补齐的。options不仅可支持传入基础参数，还可以传入prompt专用的属性。当然，也可以不传。yes携带value 表单值index 索引elem 表单元素
+
+	//prompt层新定制的成员如下
+	{
+	  formType: 1, //输入框类型，支持0（文本）默认1（密码）2（多行文本）
+	  value: '', //初始时的值，默认空字符
+	  maxlength: 140, //可输入文本的最大长度，默认500
+	}
+	 
+	//例子1
+	layer.prompt(function(value, index, elem){
+	  alert(value); //得到value
+	  layer.close(index);
+	});
+	 
+	//例子2
+	layer.prompt({
+	  formType: 2,
+	  value: '初始值',
+	  title: '请输入值',
+	  area: ['800px', '350px'] //自定义文本域宽高
+	}, function(value, index, elem){
+	  alert(value); //得到value
+	  layer.close(index);
+	});
+
+
+##layer.tab(options) - tab层
+tab层只单独定制了一个成员，即tab: []，这个好像没有什么可介绍的，简单粗暴看例子
+
+	layer.tab({
+	  area: ['600px', '300px'],
+	  tab: [{
+	    title: 'TAB1', 
+	    content: '内容1'
+	  }, {
+	    title: 'TAB2', 
+	    content: '内容2'
+	  }, {
+	    title: 'TAB3', 
+	    content: '内容3'
+	  }]
+	});  
+
+##layer.photos(options) - 相册层
+相册层，也可以称之为图片查看器。它的出场动画从layer内置的动画类型中随机展现。photos支持传入json和直接读取页面图片两种方式。如果是json传入，如下：
+
+
+	$.getJSON('/jquery/layer/test/photos.json', function(json){
+	  layer.photos({
+	    photos: json
+	    ,anim: 5 //0-6的选择，指定弹出图片动画类型，默认随机（请注意，3.0之前的版本用shift参数）
+	  });
+	}); 
+	//而返回的json需严格按照如下格式：
+	{
+	  "title": "", //相册标题
+	  "id": 123, //相册id
+	  "start": 0, //初始显示的图片序号，默认0
+	  "data": [   //相册包含的图片，数组格式
+	    {
+	      "alt": "图片名",
+	      "pid": 666, //图片id
+	      "src": "", //原图地址
+	      "thumb": "" //缩略图地址
+	    }
+	  ]
+	}
+
+如果是直接从页面中获取图片，那么需要指向图片的父容器，并且你的img可以设定一些规定的属性（但不是必须的）。
+
+	//HTML示例
+	<div id="layer-photos-demo" class="layer-photos-demo">
+	  <img layer-pid="图片id，可以不写" layer-src="大图地址" src="缩略图" alt="图片名">
+	  <img layer-pid="图片id，可以不写" layer-src="大图地址" src="缩略图" alt="图片名">
+	</div>
+	//调用示例
+	layer.ready(function(){ //为了layer.ext.js加载完毕再执行
+	  layer.photos({
+	    photos: '#layer-photos-demo'
+	    ,anim: 5 //0-6的选择，指定弹出图片动画类型，默认随机（请注意，3.0之前的版本用shift参数）
+	  });
+	}); 
+
+第二种方式的图片查看器显然更加简单，因为无需像第一种那样返回规定的json，但是他们还是有各自的应用场景的，你可以按照你的需求进行选择。另外，photos还有个tab回调，切换图片时触发。
+
+	layer.photos({
+	  photos: json/选择器,
+	  tab: function(pic, layero){
+	    console.log(pic) //当前图片的一些信息
+	  }
+	});
