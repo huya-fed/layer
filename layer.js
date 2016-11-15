@@ -710,9 +710,7 @@ ready.rescollbar = function(index){
 	}
 };
 
-/** 内置成员 */
 
-window.layer = layer;
 
 //获取子iframe的DOM
 layer.getChildFrame = function(selector, index){
@@ -1213,6 +1211,8 @@ ready.run = function(_$){
 	};
 };
 
+
+
 //加载方式
 /*window.layui && layui.define ? (
 	layer.ready()
@@ -1234,5 +1234,9 @@ ready.run = function(_$){
 	}()
 );*/
 ready.run(window.jQuery);
+
+module.exports = layer;
+
+//window.layer = layer;
 
 }(window);
